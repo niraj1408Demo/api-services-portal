@@ -62,7 +62,7 @@ jobs:
       #     docker-compose build
       
       - name: Download Binary Release
-        id: download
+        id: determine-os-arch
         run: |
           os=$(uname -s | tr '[:upper:]' '[:lower:]')
           arch=$(uname -m)
@@ -70,7 +70,7 @@ jobs:
           echo "::set-output name=arch::$arch"
     
       - name: Download Binary Release
-        id: download
+        id: download-binary
         run: |
           # Set the GitHub repository, release tag, and asset prefix
           GITHUB_REPO_OWNER=bcgov  # Replace with the owner of the repository
