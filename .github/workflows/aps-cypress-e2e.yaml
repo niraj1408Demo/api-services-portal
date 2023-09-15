@@ -64,8 +64,8 @@ jobs:
       - name: Download Binary Release
         id: determine-os-arch
         run: |
-          os=$(uname -s | tr '[:upper:]' '[:lower:]')
-          arch=$(uname -m)
+          os=${{ runner.os }}
+          arch=${{ matrix.architecture }}
           echo "::set-output name=os::$os"
           echo "::set-output name=arch::$arch"
     
@@ -79,7 +79,7 @@ jobs:
           
           # Determine the asset name based on OS and architecture
           case "${{ steps.determine-os-arch.outputs.os }}-${{ steps.determine-os-arch.outputs.arch }}" in
-            linux-x86_64)
+            linux-x64)
               ASSET_NAME=gwa_Linux_x86_64.tgz
               ;;
             linux-arm64)
