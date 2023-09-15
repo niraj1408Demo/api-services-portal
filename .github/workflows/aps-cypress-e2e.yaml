@@ -61,14 +61,43 @@ jobs:
       #   run: |
       #     docker-compose build
       
-      - name: Install gwa
-        uses: jaxxstorm/action-install-gh-release@v1.10.0
-        with: # Grab a specific platform and/or architecture
-          repo: bcgov/gwa-cli
-          platform: linux
-          arch: x86-64
-          download-path: ${{ github.workspace }}/e2e
-      
+      - name: Download Binary Release
+        id: download
+        run: |
+          os=$(uname -s | tr '[:upper:]' '[:lower:]')
+          arch=$(uname -m)
+          echo "::set-output name=os::$os"
+          echo "::set-output name=arch::$arch"
+    
+      - name: Download Binary Release
+        id: download
+        run: |
+          # Set the GitHub repository, release tag, and asset prefix
+          GITHUB_REPO_OWNER=bcgov  # Replace with the owner of the repository
+          GITHUB_REPO_NAME=gwa-cli  # Replace with the repository name
+          GITHUB_RELEASE_TAG=latest  # Replace with the release tag you want to download
+          
+          # Determine the asset name based on OS and architecture
+          case "${{ steps.determine-os-arch.outputs.os }}-${{ steps.determine-os-arch.outputs.arch }}" in
+            linux-x86_64)
+              ASSET_NAME=gwa_Linux_x86_64.tgz
+              ;;
+            linux-arm64)
+              ASSET_NAME=gwa_Linux_arm64.tgz
+              ;;
+            darwin-x86_64)
+              ASSET_NAME=gwa_Darwin_x86_64.zip
+              ;;
+            *)
+              echo "Unsupported OS and architecture: ${{ steps.determine-os-arch.outputs.os }}-${{ steps.determine-os-arch.outputs.arch }}"
+              exit 1
+              ;;
+          esac
+          
+          # Download the binary release asset
+          curl -L -o "$ASSET_NAME" "https://github.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/releases/download/$GITHUB_RELEASE_TAG/$ASSET_NAME"
+          mv "$ASSET_NAME" ${{ github.workspace }}/e2e
+        
       - name: Spin up API Services Portal and Run E2E Tests
         run: |
           export CY_EXECUTION_ENV=${{ env.EXECUTION_ENV }}
