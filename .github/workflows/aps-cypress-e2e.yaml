@@ -62,7 +62,7 @@ jobs:
       #     docker-compose build
       
       - name: Install gwa
-        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        uses: robinraju/release-downloader@v1.8
         with: # Grab a specific platform and/or architecture
           repo: bcgov/gwa-cli
           binary-name: gwa
