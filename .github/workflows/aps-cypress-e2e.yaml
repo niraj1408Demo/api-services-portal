@@ -64,9 +64,10 @@ jobs:
       - name: Install gwa
         uses: robinraju/release-downloader@v1.8
         with: # Grab a specific platform and/or architecture
-          repo: bcgov/gwa-cli
-          binary-name: gwa
-          download-path: ${{ github.workspace }}/e2e
+          latest: true
+          repository: bcgov/gwa-cli
+          fileName: gwa
+          out-file-path: ${{ github.workspace }}/e2e
       
       - name: Spin up API Services Portal and Run E2E Tests
         run: |
