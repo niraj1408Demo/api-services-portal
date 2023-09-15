@@ -64,10 +64,9 @@ jobs:
       - name: Install gwa
         uses: jaxxstorm/action-install-gh-release@v1.10.0
         with: # Grab a specific platform and/or architecture
-          repository: bcgov/gwa-cli
+          repo: bcgov/gwa-cli
           platform: ${{ runner.os }}
           arch: $(uname -m)
-          binary-name: gwa
           download-path: ${{ github.workspace }}/e2e
       
       - name: Spin up API Services Portal and Run E2E Tests
