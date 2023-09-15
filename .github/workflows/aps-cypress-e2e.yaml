@@ -79,7 +79,7 @@ jobs:
           
           # Determine the asset name based on OS and architecture
           case "${{ steps.determine-os-arch.outputs.os }}-${{ steps.determine-os-arch.outputs.arch }}" in
-            linux-x64)
+            Linux-X64)
               ASSET_NAME=gwa_Linux_x86_64.tgz
               ;;
             linux-arm64)
