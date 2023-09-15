@@ -66,7 +66,7 @@ jobs:
         with: # Grab a specific platform and/or architecture
           repo: bcgov/gwa-cli
           platform: ${{ runner.os }}
-          arch: '64'
+          arch: 'arm64'
           download-path: ${{ github.workspace }}/e2e
       
       - name: Spin up API Services Portal and Run E2E Tests
