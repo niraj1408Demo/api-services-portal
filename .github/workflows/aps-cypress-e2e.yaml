@@ -65,7 +65,7 @@ jobs:
         id: determine-os-arch
         run: |
           os=${{ runner.os }}
-          arch=${{ matrix.architecture }}
+          arch=${{ runner.arch }}
           echo "::set-output name=os::$os"
           echo "::set-output name=arch::$arch"
     
