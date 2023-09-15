@@ -62,11 +62,13 @@ jobs:
       #     docker-compose build
       
       - name: Install gwa
-        uses: robinraju/release-downloader@v1.8
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
         with: # Grab a specific platform and/or architecture
-          latest: true
           repository: bcgov/gwa-cli
-          out-file-path: ${{ github.workspace }}/e2e
+          platform: ${{ runner.os }}
+          arch: $(uname -m)
+          binary-name: gwa
+          download-path: ${{ github.workspace }}/e2e
       
       - name: Spin up API Services Portal and Run E2E Tests
         run: |
