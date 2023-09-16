@@ -12,6 +12,3 @@ COPY gwa /usr/local/bin
 ADD cypress /e2e/cypress
 
 RUN npm install
-
-
-ENTRYPOINT ["npm", "run", "cy:run:html"]
