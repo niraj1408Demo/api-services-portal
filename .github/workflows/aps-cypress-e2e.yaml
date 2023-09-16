@@ -45,10 +45,10 @@ jobs:
       #     ls -la
       #     mv env.example .env
 
-      - name: Debug
+      - name: Unzip TGZ
         run: |
           cd ${{ github.workspace }}/e2e
-          ls -la
+          tar -xzvf gwa_Linux_x86_64.tgz
 
       # - name: Build
       #   run: |
