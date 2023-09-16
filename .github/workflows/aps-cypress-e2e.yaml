@@ -63,7 +63,11 @@ jobs:
           export CY_COMMIT_AUTHOR_EMAIL=$(git --no-pager show -s --format='%ae' ${{ env.GIT_COMMIT_SHA }})
           docker-compose up -d
 
-          
+      - name: Debug Container
+        run: docker exec -it cypress-e2e la -la /usr/local/bin
+
+      - name: Debug Container
+        run: docker exec -it cypress-e2e gwa
       # - name: Build
       #   run: |
       #     cd gwa-cli
