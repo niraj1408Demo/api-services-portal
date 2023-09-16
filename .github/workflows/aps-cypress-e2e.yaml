@@ -18,11 +18,11 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
     steps:
-      - name: Build GWA API Image
-        run: |
-          git clone https://github.com/bcgov/gwa-api.git
-          cd gwa-api/microservices/gatewayApi
-          docker build -t gwa-api:e2e .
+      # - name: Build GWA API Image
+      #   run: |
+      #     git clone https://github.com/bcgov/gwa-api.git
+      #     cd gwa-api/microservices/gatewayApi
+      #     docker build -t gwa-api:e2e .
 
       - name: Checkout Portal
         uses: actions/checkout@v2
@@ -50,11 +50,20 @@ jobs:
           cd ${{ github.workspace }}/e2e
           tar -xzvf gwa_Linux_x86_64.tgz
 
-      - name: run dockerfile
+      - name: Build dockerfile
         run: |
           cd ${{ github.workspace }}/e2e
           docker build -t e2e .
           docker run e2e
+          docker exec -it e2e gwa
+
+      - name: run dockerfile
+        run: |
+          docker run e2e
+          docker exec -it e2e gwa
+
+      - name: execute command
+        run: |
           docker exec -it e2e gwa
           
       # - name: Build
