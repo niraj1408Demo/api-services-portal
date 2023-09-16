@@ -41,7 +41,7 @@ jobs:
         run: |
           cd gwa-cli
           ls -la
-          mv env.exampler .env
+          mv env.example .env
 
       - name: Debug
         run: echo ${{ github.workspace }}
