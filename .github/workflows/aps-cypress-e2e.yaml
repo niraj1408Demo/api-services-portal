@@ -40,7 +40,7 @@ jobs:
       - name: create .env file
         run: |
           cd gwa-cli
-          cd ls -la
+          ls -la
           mv env.exampler .env
 
       - name: Debug
