@@ -74,51 +74,47 @@ jobs:
           export CY_COMMIT_AUTHOR_EMAIL=$(git --no-pager show -s --format='%ae' ${{ env.GIT_COMMIT_SHA }})
           docker-compose up -d
 
-      - name: Build Docker Images
+      - name: Execute Tests & Clean Up
         run: |
-          docker exec -it cypress-e2e gwa
+          while true; do
+            if [ "$(docker ps -aq -f status=exited -f name=cypress-e2e)" ]; then
+              # cleanup
+              docker-compose down
+              break
+            else
+              echo  "Waiting for Cypress to Complete E2E Tests....."
+              sleep 1m
+            fi
+          done
 
-      # - name: Execute Tests & Clean Up
-      #   run: |
-      #     while true; do
-      #       if [ "$(docker ps -aq -f status=exited -f name=cypress-e2e)" ]; then
-      #         # cleanup
-      #         docker-compose down
-      #         break
-      #       else
-      #         echo  "Waiting for Cypress to Complete E2E Tests....."
-      #         sleep 1m
-      #       fi
-      #     done
+      - name: Upload E2E Test Results Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: ${{ github.workspace }}/e2e/results/report
 
-      # - name: Upload E2E Test Results Report
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: test-results
-      #     path: ${{ github.workspace }}/e2e/results/report
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.organization=bcgov-oss
+            -Dsonar.projectKey=aps-portal-e2e
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=src/nextapp
+            -Dsonar.javascript.lcov.reportPaths=./e2e/coverage/lcov.info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # - name: SonarCloud Scan
-      #   uses: sonarsource/sonarcloud-github-action@master
-      #   with:
-      #     args: >
-      #       -Dsonar.organization=bcgov-oss
-      #       -Dsonar.projectKey=aps-portal-e2e
-      #       -Dsonar.host.url=https://sonarcloud.io
-      #       -Dsonar.sources=src/nextapp
-      #       -Dsonar.javascript.lcov.reportPaths=./e2e/coverage/lcov.info
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # - name: Check for failed tests and create Issue
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     FAILURE_COUNT=$(cat ${{ github.workspace }}/e2e/results/bcgov-aps-e2e-report.json | jq '.stats.failures')
-      #     if [[ "$FAILURE_COUNT" -gt 0 ]]; then
-      #       FAILED_TESTS=$(cat ${{ github.workspace }}/e2e/results/bcgov-aps-e2e-report.json | jq '.results | .[] | .suites | .[].tests | .[] | select(.fail==true) | .title')
-      #       STATS=$(cat ${{ github.workspace }}/e2e/results/bcgov-aps-e2e-report.json | jq '.stats')
-      #       echo -e "Stats: $STATS\n\nFailed Tests:\n$FAILED_TESTS\n\nRun Link: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > msg
-      #       export MSG=$(cat msg)
-      #       gh issue create --title "FAILED: Automated Tests($FAILURE_COUNT)" --body "$MSG" --label "automation" --assignee "${{ env.GIT_COMMIT_AUTHOR }}"
-      #     fi
+      - name: Check for failed tests and create Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FAILURE_COUNT=$(cat ${{ github.workspace }}/e2e/results/bcgov-aps-e2e-report.json | jq '.stats.failures')
+          if [[ "$FAILURE_COUNT" -gt 0 ]]; then
+            FAILED_TESTS=$(cat ${{ github.workspace }}/e2e/results/bcgov-aps-e2e-report.json | jq '.results | .[] | .suites | .[].tests | .[] | select(.fail==true) | .title')
+            STATS=$(cat ${{ github.workspace }}/e2e/results/bcgov-aps-e2e-report.json | jq '.stats')
+            echo -e "Stats: $STATS\n\nFailed Tests:\n$FAILED_TESTS\n\nRun Link: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > msg
+            export MSG=$(cat msg)
+            gh issue create --title "FAILED: Automated Tests($FAILURE_COUNT)" --body "$MSG" --label "automation" --assignee "${{ env.GIT_COMMIT_AUTHOR }}"
+          fi
