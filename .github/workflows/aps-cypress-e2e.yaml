@@ -64,10 +64,10 @@ jobs:
           docker-compose up -d
 
       - name: Debug Container
-        run: docker exec cypress-e2e ls -la /usr/local/bin
+        run: docker exec -i cypress-e2e ls -la /usr/local/bin
 
       - name: Debug Container
-        run: docker exec cypress-e2e gwa
+        run: docker exec -i cypress-e2e gwa
       # - name: Build
       #   run: |
       #     cd gwa-cli
