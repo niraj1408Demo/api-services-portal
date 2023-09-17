@@ -63,13 +63,13 @@ jobs:
         with:
           repository: "bcgov/gwa-cli"
           latest: true
-          fileName: "gwa_Linux_arm64.tgz"
+          fileName: "gwa_Linux_armv6.tgz"
           out-file-path: "${{ github.workspace }}/e2e"
 
       - name: Unzip file
         run: |
           cd ${{ github.workspace }}/e2e
-          tar xvzf gwa_Linux_arm64.tgz
+          tar xvzf gwa_Linux_armv6.tgz
           
       - name: Build Docker Images
         run: |
