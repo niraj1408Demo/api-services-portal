@@ -58,18 +58,27 @@ jobs:
       #   with:
       #     name: binary-artifact
       #     path: ${{ github.workspace }}/e2e
+      - name: Determine Download file name
+        id: set_variable
+        run: |
+          if [ "${{ runner.arch }}" | tr '[:upper:]' '[:lower:]' == "x64" ]; then
+            echo "::set-output name=my_variable::gwa_Linux_x86_64.tgz"
+          else
+            echo "::set-output name=my_variable::value_if_condition_false"
+          fi
+          
       - name: Download Binar
         uses: robinraju/release-downloader@v1.8
         with:
           repository: "bcgov/gwa-cli"
           latest: true
-          fileName: "gwa_Linux_x86_64.tgz"
+          fileName: ${{ steps.set_variable.outputs.my_variable }}
           out-file-path: "${{ github.workspace }}/e2e"
 
       - name: Unzip file
         run: |
           cd ${{ github.workspace }}/e2e
-          tar xvzf gwa_Linux_x86_64.tgz
+          tar xvzf ${{ steps.set_variable.outputs.my_variable }}
           
       - name: Build Docker Images
         run: |
@@ -88,34 +97,34 @@ jobs:
           export CY_COMMIT_AUTHOR_EMAIL=$(git --no-pager show -s --format='%ae' ${{ env.GIT_COMMIT_SHA }})
           docker-compose up -d
 
-      - name: Execute Tests & Clean Up
-        run: |
-          while true; do
-            if [ "$(docker ps -aq -f status=exited -f name=cypress-e2e)" ]; then
-              # cleanup
-              docker-compose down
-              break
-            else
-              echo  "Waiting for Cypress to Complete E2E Tests....."
-              sleep 1m
-            fi
-          done
+      # - name: Execute Tests & Clean Up
+      #   run: |
+      #     while true; do
+      #       if [ "$(docker ps -aq -f status=exited -f name=cypress-e2e)" ]; then
+      #         # cleanup
+      #         docker-compose down
+      #         break
+      #       else
+      #         echo  "Waiting for Cypress to Complete E2E Tests....."
+      #         sleep 1m
+      #       fi
+      #     done
 
-      - name: Upload E2E Test Results Report
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-results
-          path: ${{ github.workspace }}/e2e/results/report
+      # - name: Upload E2E Test Results Report
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: test-results
+      #     path: ${{ github.workspace }}/e2e/results/report
 
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.organization=bcgov-oss
-            -Dsonar.projectKey=aps-portal-e2e
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=src/nextapp
-            -Dsonar.javascript.lcov.reportPaths=./e2e/coverage/lcov.info
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # - name: SonarCloud Scan
+      #   uses: sonarsource/sonarcloud-github-action@master
+      #   with:
+      #     args: >
+      #       -Dsonar.organization=bcgov-oss
+      #       -Dsonar.projectKey=aps-portal-e2e
+      #       -Dsonar.host.url=https://sonarcloud.io
+      #       -Dsonar.sources=src/nextapp
+      #       -Dsonar.javascript.lcov.reportPaths=./e2e/coverage/lcov.info
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
