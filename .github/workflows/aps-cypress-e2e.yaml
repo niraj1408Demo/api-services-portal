@@ -61,7 +61,7 @@ jobs:
       - name: Determine Download file name
         id: set_variable
         run: |
-          if [ "${{ runner.arch }}" | tr '[:upper:]' '[:lower:]' == "x64" ]; then
+          if [ "${{ runner.arch }} | tr '[:upper:]' '[:lower:]'" == "x64" ]; then
             echo "::set-output name=my_variable::gwa_Linux_x86_64.tgz"
           else
             echo "::set-output name=my_variable::value_if_condition_false"
